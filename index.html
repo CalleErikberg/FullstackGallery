@@ -1,0 +1,102 @@
+<html>
+  <head>
+    <title>Worse Flickr gallery!</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <style>
+      body {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+        align-content: center;
+        align-items: center;
+        width: 100%;
+        background-color: #fff;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+      img {
+        width: 500px;
+        height: 500px;
+        min-width: 500px;
+        min-height: 500px;
+        flex: 1;
+        overflow-x: hidden;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+      @media screen and (min-width: 978px) {
+        img {
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+      }
+    </style>
+    <script>
+      let pageNmbr = 1;
+      //Entire function of fetching the data from /data, adding ?"page=" to the URL + the pagenumber that we will be changing
+      function loadPhotos() {
+        fetch("http://localhost:3000/data" + "?page=" + pageNmbr)
+          .then(function (response) {
+            //parse the response as JSON
+            return response.json();
+          })
+          .then(function (data) {
+            //forces the node data into strings
+            appendData(data);
+          })
+          //error handling
+          .catch(function (err) {
+            console.log("error: " + err);
+            window.alert("We had trouble loading the gallery!");
+          });
+        //function of accessing the JSON-data, getting photos of the object, and photo
+        function appendData(data) {
+          let arr = data.photos.photo;
+          //loop through the array of photo, creating an img (but only img's) with the source being image-links and inserting the right server, id and secret-data from the object
+          for (var i = 0; i < arr.length; i++) {
+            var img = document.createElement("img");
+            let obj = arr[i];
+            img.src =
+              "https://live.staticflickr.com/" +
+              obj.server +
+              "/" +
+              obj.id +
+              "_" +
+              obj.secret +
+              ".jpg";
+            img.class = "img";
+            //forces the data into the class img
+            document.body.appendChild(img);
+          }
+          //loading function, setting the div with id of loading to none when the after the function above has completed
+          var x = document.getElementById("loading");
+          if (x.style.display === "none") {
+            x.style.display = "block";
+          } else {
+            x.style.display = "none";
+          }
+        }
+      }
+      //starts the entire function of getting the gallery
+      window.onload = loadPhotos;
+      //when the scrollbar of the page hits the bottom, run this
+      window.onscroll = function () {
+        if (window.innerHeight + window.scrollY >= document.body.scrollHeight) {
+          // you're at the bottom of the page
+          setTimeout(500);
+          // sets the page to the next page, enabling the gallery to loop until the gallery is full if you continually scroll down = endless scroll
+          pageNmbr += 1;
+          loadPhotos();
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <div id="loading">
+      <h1>Loading gallery...</h1>
+    </div>
+  </body>
+</html>
